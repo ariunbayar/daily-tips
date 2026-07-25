@@ -47,21 +47,30 @@ def wrap(spans, width, hang=""):
     """Greedily wrap styled spans to ``width`` visible columns."""
     if width < 8:
         width = 8
+    # A word is a list of spans, so `code`-then-punctuation stays one unit and
+    # no space is invented at a style boundary that had none.
     words = []
+    word = []
     for text, style in spans:
-        if style == CODE and len(text) <= width:
-            words.append((text, style))  # keep short code spans intact
+        if style == CODE and " " in text and len(text) <= width:
+            word.append((text, style))  # keep short code spans intact
             continue
-        for part in text.split(" "):
+        for i, part in enumerate(text.split(" ")):
+            if i and word:
+                words.append(word)
+                word = []
             if part:
-                words.append((part, style))
+                word.append((part, style))
+    if word:
+        words.append(word)
 
     lines = []
     cur = []
     length = 0
-    for word, style in words:
+    for word in words:
+        size = sum(len(text) for text, _ in word)
         sep = 1 if cur else 0
-        if cur and length + sep + len(word) > width:
+        if cur and length + sep + size > width:
             lines.append(cur)
             cur = [(hang, PLAIN)] if hang else []
             length = len(hang)
@@ -69,8 +78,8 @@ def wrap(spans, width, hang=""):
         if sep:
             cur.append((" ", PLAIN))
             length += 1
-        cur.append((word, style))
-        length += len(word)
+        cur.extend(word)
+        length += size
     if cur:
         lines.append(cur)
     return lines or [[("", PLAIN)]]
