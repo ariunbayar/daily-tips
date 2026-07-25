@@ -1,0 +1,15 @@
+#!/usr/bin/env -S python3 -S
+"""Entry point. -S skips site processing: less startup work, smaller RSS.
+
+Resolves through symlinks so this can be linked into ~/.local/bin.
+"""
+
+import os
+import sys
+
+_here = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.dirname(_here))
+
+from dailytips.cli import main  # noqa: E402
+
+sys.exit(main())

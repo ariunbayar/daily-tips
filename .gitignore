@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+
+# Tips are personal and stay on the machine, never in this repo.
+# The real collection lives in ~/.local/share/daily-tips/tips; this is a guard
+# in case a directory is created here by mistake.
+/tips/
